@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import axios from '../api';
 import { User, Question } from '../types';
 import { QuestionCard } from '../components/Question/QuestionCard';
 import { User as UserIcon, Calendar, Award, HelpCircle } from 'lucide-react';
@@ -20,40 +20,25 @@ export const ProfilePage: React.FC = () => {
   }, [username]);
 
   const fetchUserProfile = async () => {
-    if (!username) return;
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('username', username)
-      .single();
-
-    if (error) {
+    try {
+      const response = await axios.get(`/users/${username}`);
+      setUser(response.data);
+    } catch (error) {
       console.error('Error fetching user:', error);
-    } else {
-      setUser(data);
+      setUser(null);
     }
   };
 
   const fetchUserQuestions = async () => {
-    if (!username) return;
-
-    const { data, error } = await supabase
-      .from('questions')
-      .select(`
-        *,
-        author:users(id, username, email, role)
-      `)
-      .eq('author.username', username)
-      .order('created_at', { ascending: false });
-
-    if (error) {
+    try {
+      const response = await axios.get(`/users/${username}/questions`);
+      setQuestions(response.data || []);
+    } catch (error) {
       console.error('Error fetching user questions:', error);
-    } else {
-      setQuestions(data || []);
+      setQuestions([]);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -106,7 +91,7 @@ export const ProfilePage: React.FC = () => {
               {user.username.charAt(0).toUpperCase()}
             </span>
           </div>
-          
+
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
               <h1 className="text-2xl font-bold text-gray-900">{user.username}</h1>
@@ -116,7 +101,7 @@ export const ProfilePage: React.FC = () => {
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
               <div className="flex items-center space-x-1">
                 <Calendar className="w-4 h-4" />
@@ -145,7 +130,6 @@ export const ProfilePage: React.FC = () => {
 
       {/* Content Tabs */}
       <div className="bg-white rounded-lg border border-gray-200">
-        {/* Tab Headers */}
         <div className="border-b border-gray-200">
           <nav className="flex">
             <button
@@ -177,7 +161,6 @@ export const ProfilePage: React.FC = () => {
           </nav>
         </div>
 
-        {/* Tab Content */}
         <div className="p-6">
           {activeTab === 'questions' && (
             <div>

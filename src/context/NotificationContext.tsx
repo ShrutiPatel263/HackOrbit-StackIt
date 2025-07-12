@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import axios from 'axios';
 import { useAuth } from './AuthContext';
 import { Notification } from '../types';
 
@@ -36,74 +36,66 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     const fetchNotifications = async () => {
-      const { data } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (data) {
-        setNotifications(data);
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`/api/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setNotifications(res.data);
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
       }
     };
 
     fetchNotifications();
 
-    // Subscribe to real-time notifications
-    const subscription = supabase
-      .channel('notifications')
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        }, 
-        (payload) => {
-          setNotifications(prev => [payload.new as Notification, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    // Optional: Implement Socket.io or SSE for real-time updates if needed
   }, [user]);
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   const markAsRead = async (id: string) => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', id);
-
-    if (!error) {
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, is_read: true } : n)
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `/api/notifications/${id}/read`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, is_read: true } : n))
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
     }
   };
 
   const markAllAsRead = async () => {
-    if (!user) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `/api/notifications/mark-all-read`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', user.id)
-      .eq('is_read', false);
-
-    if (!error) {
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => ({ ...n, is_read: true }))
       );
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
     }
   };
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, markAllAsRead }}>
+    <NotificationContext.Provider
+      value={{ notifications, unreadCount, markAsRead, markAllAsRead }}
+    >
       {children}
     </NotificationContext.Provider>
   );

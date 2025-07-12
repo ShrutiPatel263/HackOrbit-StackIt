@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { Tag as TagIcon, Search } from 'lucide-react';
 
 interface Tag {
@@ -19,23 +19,17 @@ export const TagsPage: React.FC = () => {
 
   const fetchTags = async () => {
     try {
-      // Get all questions and extract tags
-      const { data: questions, error } = await supabase
-        .from('questions')
-        .select('tags');
+      const response = await axios.get('/api/questions');
+      const questions = response.data;
 
-      if (error) throw error;
-
-      // Count tag frequencies
       const tagCounts: { [key: string]: number } = {};
-      
-      questions?.forEach(question => {
+
+      questions.forEach((question: { tags: string[] }) => {
         question.tags.forEach((tag: string) => {
           tagCounts[tag] = (tagCounts[tag] || 0) + 1;
         });
       });
 
-      // Convert to array and sort by count
       const tagsArray = Object.entries(tagCounts)
         .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
@@ -63,7 +57,6 @@ export const TagsPage: React.FC = () => {
           Browse questions by topic and find exactly what you're looking for.
         </p>
 
-        {/* Search */}
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input

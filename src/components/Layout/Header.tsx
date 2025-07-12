@@ -7,7 +7,7 @@ import { NotificationDropdown } from './NotificationDropdown';
 import { UserMenu } from './UserMenu';
 
 export const Header: React.FC = () => {
-  const { user, userProfile, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const { unreadCount } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -55,7 +55,7 @@ export const Header: React.FC = () => {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
-            {user ? (
+            {user && !loading ? (
               <>
                 {/* Ask Question Button */}
                 <Link
@@ -79,7 +79,7 @@ export const Header: React.FC = () => {
                       </span>
                     )}
                   </button>
-                  
+
                   {showNotifications && (
                     <NotificationDropdown onClose={() => setShowNotifications(false)} />
                   )}
@@ -95,19 +95,21 @@ export const Header: React.FC = () => {
                       <User className="w-4 h-4" />
                     </div>
                     <span className="hidden sm:block text-sm font-medium">
-                      {userProfile?.username}
+                      {user.username}
                     </span>
                   </button>
-                  
+
                   {showUserMenu && (
                     <UserMenu
-                      user={userProfile}
+                      user={user}
                       onSignOut={handleSignOut}
                       onClose={() => setShowUserMenu(false)}
                     />
                   )}
                 </div>
               </>
+            ) : loading ? (
+              <div className="text-gray-500 text-sm">Loading...</div>
             ) : (
               <div className="flex items-center space-x-3">
                 <Link

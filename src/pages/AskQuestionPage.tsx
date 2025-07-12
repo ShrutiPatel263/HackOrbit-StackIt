@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import api from '../api'; 
 import { useAuth } from '../context/AuthContext';
 import { RichTextEditor } from '../components/Editor/RichTextEditor';
-import { X, Plus } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const AskQuestionPage: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -48,24 +48,19 @@ export const AskQuestionPage: React.FC = () => {
     setError('');
 
     try {
-      const { data, error } = await supabase
-        .from('questions')
-        .insert([
-          {
-            title: title.trim(),
-            description,
-            tags,
-            author_id: user.id
-          }
-        ])
-        .select()
-        .single();
+      const res = await api.post('/questions', {
+        title: title.trim(),
+        description,
+        tags,
+        authorId: user.id 
+      });
 
-      if (error) throw error;
+      const createdQuestion = res.data;
 
-      navigate(`/questions/${data.id}`);
+      navigate(`/questions/${createdQuestion._id}`); // Or `createdQuestion.id` based on backend
     } catch (err: any) {
-      setError(err.message || 'Failed to create question');
+      console.error(err);
+      setError(err.response?.data?.message || 'Failed to create question');
     } finally {
       setLoading(false);
     }
