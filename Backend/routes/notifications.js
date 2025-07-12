@@ -13,6 +13,9 @@ router.get('/', protect, validatePagination, async (req, res, next) => {
     const skip = (page - 1) * limit;
     const { unread_only } = req.query;
 
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
     let query = { recipient: req.user.id };
     
     if (unread_only === 'true') {

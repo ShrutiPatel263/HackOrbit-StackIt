@@ -37,13 +37,15 @@ connectDB();
 
 // Security middleware
 app.use(helmet());
-app.use('/api/questions', questionRoutes);
+
+
 
 
 app.use(cors({
   origin: ['http://localhost:5173'],
   credentials: true,
 }));
+
 
 
 // Rate limiting
@@ -58,6 +60,7 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -70,7 +73,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
+// API routes (after all middleware)
 app.use('/api/auth', authRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/answers', answerRoutes);

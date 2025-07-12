@@ -96,6 +96,9 @@ router.post('/login', validateLogin, async (req, res, next) => {
 // Get current user
 router.get('/me', protect , async (req, res, next) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
     const user = await User.findById(req.user.id);
     
     if (!user) {

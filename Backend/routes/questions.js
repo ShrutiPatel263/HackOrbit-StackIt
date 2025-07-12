@@ -9,7 +9,7 @@ import { validateQuestion, validatePagination } from '../middleware/validation.j
 const router = express.Router();
 
 // Get all questions with pagination and filtering
-router.get('/', validatePagination, protect, async (req, res, next) => {
+router.get('/', validatePagination, async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -161,6 +161,9 @@ router.post('/', protect , validateQuestion, async (req, res, next) => {
     }
 
     // Create question
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
     const question = new Question({
       title,
       description,
