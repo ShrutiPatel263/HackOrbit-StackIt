@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { validateRegister, validateLogin } from '../middleware/validation.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -94,7 +94,7 @@ router.post('/login', validateLogin, async (req, res, next) => {
 });
 
 // Get current user
-router.get('/me', authenticateToken, async (req, res, next) => {
+router.get('/me', protect , async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
     
@@ -109,7 +109,7 @@ router.get('/me', authenticateToken, async (req, res, next) => {
 });
 
 // Refresh token
-router.post('/refresh', authenticateToken, async (req, res, next) => {
+router.post('/refresh', protect, async (req, res, next) => {
   try {
     const token = jwt.sign(
       { userId: req.user.id, email: req.user.email },
@@ -124,7 +124,7 @@ router.post('/refresh', authenticateToken, async (req, res, next) => {
 });
 
 // Update profile
-router.put('/profile', authenticateToken, async (req, res, next) => {
+router.put('/profile',protect, async (req, res, next) => {
   try {
     const { username, bio, avatar } = req.body;
     const updates = {};

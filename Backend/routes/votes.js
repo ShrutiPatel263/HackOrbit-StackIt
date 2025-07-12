@@ -3,13 +3,13 @@ import Vote from '../models/Vote.js';
 import Question from '../models/Question.js';
 import Answer from '../models/Answer.js';
 import User from '../models/User.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 import { validateVote } from '../middleware/validation.js';
 
 const router = express.Router();
 
 // Cast vote
-router.post('/', authenticateToken, validateVote, async (req, res, next) => {
+router.post('/', protect , validateVote, async (req, res, next) => {
   try {
     const { type, target_type, target_id } = req.body;
     const userId = req.user.id;
@@ -110,7 +110,7 @@ router.post('/', authenticateToken, validateVote, async (req, res, next) => {
 });
 
 // Get user's vote for a target
-router.get('/:targetType/:targetId', authenticateToken, async (req, res, next) => {
+router.get('/:targetType/:targetId',protect, async (req, res, next) => {
   try {
     const { targetType, targetId } = req.params;
     const userId = req.user.id;

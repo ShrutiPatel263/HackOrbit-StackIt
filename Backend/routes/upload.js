@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
-import { authenticateToken } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -45,7 +45,7 @@ const upload = multer({
 });
 
 // Upload image
-router.post('/image', authenticateToken, upload.single('image'), async (req, res, next) => {
+router.post('/image', protect , upload.single('image'), async (req, res, next) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
@@ -66,7 +66,7 @@ router.post('/image', authenticateToken, upload.single('image'), async (req, res
 });
 
 // Delete uploaded image
-router.delete('/image/:filename', authenticateToken, async (req, res, next) => {
+router.delete('/image/:filename', protect , async (req, res, next) => {
   try {
     const { filename } = req.params;
     const filePath = path.join(uploadsDir, filename);

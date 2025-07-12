@@ -3,13 +3,13 @@ import Answer from '../models/Answer.js';
 import Question from '../models/Question.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 import { validateAnswer } from '../middleware/validation.js';
 
 const router = express.Router();
 
 // Create answer
-router.post('/:questionId', authenticateToken, validateAnswer, async (req, res, next) => {
+router.post('/:questionId', protect , validateAnswer, async (req, res, next) => {
   try {
     const { questionId } = req.params;
     const { content } = req.body;
@@ -60,7 +60,7 @@ router.post('/:questionId', authenticateToken, validateAnswer, async (req, res, 
 });
 
 // Update answer
-router.put('/:id', authenticateToken, async (req, res, next) => {
+router.put('/:id', protect , async (req, res, next) => {
   try {
     const { id } = req.params;
     const { content } = req.body;
@@ -94,7 +94,7 @@ router.put('/:id', authenticateToken, async (req, res, next) => {
 });
 
 // Accept answer
-router.post('/:id/accept', authenticateToken, async (req, res, next) => {
+router.post('/:id/accept', protect , async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -149,7 +149,7 @@ router.post('/:id/accept', authenticateToken, async (req, res, next) => {
 });
 
 // Delete answer
-router.delete('/:id', authenticateToken, async (req, res, next) => {
+router.delete('/:id', protect, async (req, res, next) => {
   try {
     const { id } = req.params;
 

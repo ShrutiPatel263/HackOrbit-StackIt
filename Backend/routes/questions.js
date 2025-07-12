@@ -3,13 +3,13 @@ import Question from '../models/Question.js';
 import Answer from '../models/Answer.js';
 import Tag from '../models/Tag.js';
 import Vote from '../models/Vote.js';
-import { authenticateToken, optionalAuth } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 import { validateQuestion, validatePagination } from '../middleware/validation.js';
 
 const router = express.Router();
 
 // Get all questions with pagination and filtering
-router.get('/', validatePagination, optionalAuth, async (req, res, next) => {
+router.get('/', validatePagination, protect, async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -86,7 +86,7 @@ router.get('/', validatePagination, optionalAuth, async (req, res, next) => {
 });
 
 // Get single question with answers
-router.get('/:id', optionalAuth, async (req, res, next) => {
+router.get('/:id', protect, async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -143,7 +143,7 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
 });
 
 // Create new question
-router.post('/', authenticateToken, validateQuestion, async (req, res, next) => {
+router.post('/', protect , validateQuestion, async (req, res, next) => {
   try {
     const { title, description, tags } = req.body;
 
@@ -190,7 +190,7 @@ router.post('/', authenticateToken, validateQuestion, async (req, res, next) => 
 });
 
 // Update question
-router.put('/:id', authenticateToken, validateQuestion, async (req, res, next) => {
+router.put('/:id', protect , validateQuestion, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { title, description, tags } = req.body;
@@ -249,7 +249,7 @@ router.put('/:id', authenticateToken, validateQuestion, async (req, res, next) =
 });
 
 // Delete question
-router.delete('/:id', authenticateToken, async (req, res, next) => {
+router.delete('/:id', protect , async (req, res, next) => {
   try {
     const { id } = req.params;
 

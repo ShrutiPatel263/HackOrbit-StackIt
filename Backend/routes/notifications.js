@@ -1,12 +1,12 @@
 import express from 'express';
 import Notification from '../models/Notification.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 import { validatePagination } from '../middleware/validation.js';
 
 const router = express.Router();
 
 // Get user notifications
-router.get('/', authenticateToken, validatePagination, async (req, res, next) => {
+router.get('/', protect, validatePagination, async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -40,7 +40,7 @@ router.get('/', authenticateToken, validatePagination, async (req, res, next) =>
 });
 
 // Get unread notification count
-router.get('/unread-count', authenticateToken, async (req, res, next) => {
+router.get('/unread-count', protect , async (req, res, next) => {
   try {
     const count = await Notification.countDocuments({
       recipient: req.user.id,
@@ -54,7 +54,7 @@ router.get('/unread-count', authenticateToken, async (req, res, next) => {
 });
 
 // Mark notification as read
-router.put('/:id/read', authenticateToken, async (req, res, next) => {
+router.put('/:id/read', protect, async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -70,7 +70,7 @@ router.put('/:id/read', authenticateToken, async (req, res, next) => {
 });
 
 // Mark all notifications as read
-router.put('/mark-all-read', authenticateToken, async (req, res, next) => {
+router.put('/mark-all-read', protect , async (req, res, next) => {
   try {
     await Notification.updateMany(
       { recipient: req.user.id, isRead: false },
@@ -84,7 +84,7 @@ router.put('/mark-all-read', authenticateToken, async (req, res, next) => {
 });
 
 // Delete notification
-router.delete('/:id', authenticateToken, async (req, res, next) => {
+router.delete('/:id',protect, async (req, res, next) => {
   try {
     const { id } = req.params;
 

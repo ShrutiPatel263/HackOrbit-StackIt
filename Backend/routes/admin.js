@@ -4,13 +4,13 @@ import Question from '../models/Question.js';
 import Answer from '../models/Answer.js';
 import Tag from '../models/Tag.js';
 import Notification from '../models/Notification.js';
-import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 import { validatePagination } from '../middleware/validation.js';
 
 const router = express.Router();
 
 // Apply admin middleware to all routes
-router.use(authenticateToken, requireAdmin);
+router.use(protect);
 
 // Get platform statistics
 router.get('/stats', async (req, res, next) => {
