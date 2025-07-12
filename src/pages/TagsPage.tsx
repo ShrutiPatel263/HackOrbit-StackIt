@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Link } from 'react-router-dom';
 import { Tag as TagIcon, Search } from 'lucide-react';
 
@@ -19,7 +19,7 @@ export const TagsPage: React.FC = () => {
 
   const fetchTags = async () => {
     try {
-      const response = await axios.get('/api/questions');
+      const response = await api.get('/questions');
       const questions = response.data;
 
       const tagCounts: { [key: string]: number } = {};

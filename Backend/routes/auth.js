@@ -7,7 +7,7 @@ import { protect } from '../middleware/auth.js';
 const router = express.Router();
 
 // Register
-router.post('/register', validateRegister, async (req, res, next) => {
+router.post('/signup', validateRegister, async (req, res, next) => {
   try {
     const { email, password, username } = req.body;
 

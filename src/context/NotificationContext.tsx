@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { useAuth } from './AuthContext';
 import { Notification } from '../types';
 
@@ -38,7 +38,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`/api/notifications`, {
+        const res = await api.get(`/notifications`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setNotifications(res.data);
@@ -57,8 +57,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const markAsRead = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(
-        `/api/notifications/${id}/read`,
+      await api.patch(
+        `/notifications/${id}/read`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -76,8 +76,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(
-        `/api/notifications/mark-all-read`,
+      await api.patch(
+        `/notifications/mark-all-read`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

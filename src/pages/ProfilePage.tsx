@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from '../api';
+import api from '../api';
 import { User, Question } from '../types';
 import { QuestionCard } from '../components/Question/QuestionCard';
 import { User as UserIcon, Calendar, Award, HelpCircle } from 'lucide-react';
@@ -21,7 +21,7 @@ export const ProfilePage: React.FC = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get(`/users/${username}`);
+      const response = await api.get(`/users/${username}`);
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -31,7 +31,7 @@ export const ProfilePage: React.FC = () => {
 
   const fetchUserQuestions = async () => {
     try {
-      const response = await axios.get(`/users/${username}/questions`);
+      const response = await api.get(`/users/${username}/questions`);
       setQuestions(response.data || []);
     } catch (error) {
       console.error('Error fetching user questions:', error);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import axios from 'axios';
+import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import { Question, Answer } from '../types';
 import { RichTextEditor } from '../components/Editor/RichTextEditor';
@@ -27,7 +27,7 @@ export const QuestionDetailPage: React.FC = () => {
 
   const fetchQuestion = async () => {
     try {
-      const response = await axios.get(`/api/questions/${id}`);
+      const response = await api.get(`/questions/${id}`);
       setQuestion(response.data);
     } catch (error) {
       console.error('Error fetching question:', error);
@@ -37,7 +37,7 @@ export const QuestionDetailPage: React.FC = () => {
 
   const fetchAnswers = async () => {
     try {
-      const response = await axios.get(`/api/questions/${id}/answers`);
+      const response = await api.get(`/questions/${id}/answers`);
       setAnswers(response.data);
     } catch (error) {
       console.error('Error fetching answers:', error);
@@ -54,7 +54,7 @@ export const QuestionDetailPage: React.FC = () => {
     setSubmittingAnswer(true);
 
     try {
-      const response = await axios.post('/api/answers', {
+      const response = await api.post('/answers', {
         content: answerContent,
         question_id: question.id,
         author_id: user.id
@@ -64,7 +64,7 @@ export const QuestionDetailPage: React.FC = () => {
       setAnswerContent('');
 
       if (question.author_id !== user.id) {
-        await axios.post('/api/notifications', {
+        await api.post('/notifications', {
           user_id: question.author_id,
           type: 'answer',
           title: 'New answer to your question',
@@ -83,7 +83,7 @@ export const QuestionDetailPage: React.FC = () => {
     if (!user || !question || question.author_id !== user.id) return;
 
     try {
-      await axios.patch(`/api/questions/${question.id}/accept`, {
+      await api.patch(`/api/questions/${question.id}/accept`, {
         answerId
       });
 

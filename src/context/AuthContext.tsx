@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { User as AppUser } from '../types';
 
 interface AuthContextType {
@@ -34,15 +34,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios
-        .get('/api/auth/me', {
+      api
+        .get('/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((res) => {
-          setUser(res.data);
-        })
+        setUser(res.data.user);  
+    })
         .catch(() => {
           setUser(null);
         })
@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       setUser(res.data.user);
       return { error: null };
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      const res = await axios.post('/api/auth/signup', { email, password, username });
+      const res = await api.post('/auth/signup', { email, password, username });
       localStorage.setItem('token', res.data.token);
       setUser(res.data.user);
       return { error: null };
