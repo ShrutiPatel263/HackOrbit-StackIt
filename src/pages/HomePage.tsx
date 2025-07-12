@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../api';
+import api from '../api'; // ✅ uses custom axios instance
 import { Question } from '../types';
 import { QuestionCard } from '../components/Question/QuestionCard';
 import { Search, Filter, TrendingUp } from 'lucide-react';
@@ -21,19 +21,25 @@ export const HomePage: React.FC<HomePageProps> = ({ sortBy = 'recent' }) => {
 
   const fetchQuestions = async () => {
     setLoading(true);
-
     try {
       const response = await api.get('/questions', {
         params: {
-          sortBy,
-          q: searchQuery || ''
-        }
+          sort: sortBy,
+          search: searchQuery || '',
+        },
       });
 
-      setQuestions(response.data || []);
+      const result = response.data.questions || [];
+
+      const formatted = result.map((q: any) => ({
+        ...q,
+        id: q.id || q._id, // ✅ fallback for _id
+      }));
+
+      setQuestions(formatted);
     } catch (error) {
       console.error('Error fetching questions:', error);
-      setQuestions([]); // fallback to empty
+      setQuestions([]);
     } finally {
       setLoading(false);
     }
@@ -107,3 +113,4 @@ export const HomePage: React.FC<HomePageProps> = ({ sortBy = 'recent' }) => {
     </div>
   );
 };
+
